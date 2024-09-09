@@ -1,5 +1,5 @@
-using DrinkStorage.Persistence;
 using DrinkStorage.Application;
+using DrinkStorage.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 

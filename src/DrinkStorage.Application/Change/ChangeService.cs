@@ -28,7 +28,7 @@ public class ChangeService
                 change -= currnetAmount * coin.Value;
                 response.Add(new CoinResponse(coin.Id, coin.Value, currnetAmount));
             }
-            if (change == 0 )
+            if (change == 0)
             {
                 break;
             }

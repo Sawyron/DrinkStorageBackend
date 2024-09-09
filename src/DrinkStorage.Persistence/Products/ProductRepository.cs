@@ -11,6 +11,9 @@ public class ProductRepository
         _context = context;
     }
 
+    public Task AddRangeAsync(IEnumerable<Product> products, CancellationToken token) =>
+        _context.AddRangeAsync(products, token);
+
     public Task<List<Product>> FindAllAsync(CancellationToken token) => _context.Set<Product>()
         .AsNoTracking()
         .ToListAsync(token);

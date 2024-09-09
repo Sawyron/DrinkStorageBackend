@@ -42,6 +42,20 @@ public class ProductController : ControllerBase
         return Ok(products.Select(MapProduct).ToList());
     }
 
+    [HttpPost("import")]
+    public async Task<IActionResult> Import(IFormFile file, CancellationToken token)
+    {
+        try
+        {
+            await _productSerivce.ImportFromXlsx(file.OpenReadStream(), token);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
     private static ProductResponse MapProduct(Product product) =>
         new(
             product.Id,
