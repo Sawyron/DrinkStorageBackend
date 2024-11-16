@@ -21,7 +21,7 @@ public class OrderController : ControllerBase
     {
         var command = new CreateOrderCommand(
             request.OrderItems.Select(i => new OrderItemCreateCommand(i.ProductId, i.Quantity)).ToList(),
-            request.Coins.Select(c => new CoinCommand(c.Id, c.Quantity)).ToList());
+            request.Coins.Select(c => new CreateCoinCommand(c.Id, c.Quantity)).ToList());
         var response = await _service.CreateOrder(command, token);
         return response is not null ? Ok(response) : BadRequest("Unable to give change");
     }

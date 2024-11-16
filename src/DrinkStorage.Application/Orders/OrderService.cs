@@ -45,18 +45,18 @@ public class OrderService
             .ToDictionary(p => p.Id, p => p);
             foreach (var item in command.OrderItems)
             {
-                if (!products.ContainsKey(item.ProductId))
+                if (!products.TryGetValue(item.ProductId, out Product? value))
                 {
                     throw new ProductsNotFoundException([item.ProductId]);
                 }
-                if (products[item.ProductId].Quantity < item.Quantity)
+                if (value.Quantity < item.Quantity)
                 {
                     throw new ProductQuantityIsUnsufficientExcettion(item.ProductId, item.Quantity);
                 }
             }
             int price = command.OrderItems
                 .Sum(i => i.Quantity * products[i.ProductId].Price);
-            List<CoinResponse>? change = await _changeService.GetChageAsync(price, command.Coins, token);
+            List<CoinResponse>? change = await _changeService.GetChangeAsync(price, command.Coins, token);
             if (change is null)
             {
                 return null;
@@ -65,9 +65,8 @@ public class OrderService
                 .Select(i => _productRepository.ReduceQuantityAsync(i.ProductId, i.Quantity, token)));
             Task coinTask = Task.WhenAll(command.Coins
                 .Select(c => _coinRepository.ReduceQuantitiesAsync(c.Id, c.Quantity, token)));
-            await Task.WhenAll(
-                [
-                    _orderRepository.CreateAsync(MapOrderCommand(command, products), token),
+            await Task.WhenAll([
+                _orderRepository.CreateAsync(MapOrderCommand(command, products), token),
                 productTask,
                 coinTask,
             ]);

@@ -13,7 +13,7 @@ public class ChangeService
         _coinRepository = coinRepository;
     }
 
-    public async Task<List<CoinResponse>?> GetChageAsync(int price, List<CoinCommand> incomingCoins, CancellationToken token)
+    public async Task<List<CoinResponse>?> GetChangeAsync(int price, List<CreateCoinCommand> incomingCoins, CancellationToken token)
     {
         var response = new List<CoinResponse>();
         List<Coin> coins = [.. (await _coinRepository.FindAllAsync(token)).OrderByDescending(c => c.Value)];
@@ -22,11 +22,11 @@ public class ChangeService
         int change = given - price;
         foreach (Coin coin in coins)
         {
-            int currnetAmount = Math.Min(coin.Count, change / coin.Value);
-            if (currnetAmount > 0)
+            int currentAmount = Math.Min(coin.Count, change / coin.Value);
+            if (currentAmount > 0)
             {
-                change -= currnetAmount * coin.Value;
-                response.Add(new CoinResponse(coin.Id, coin.Value, currnetAmount));
+                change -= currentAmount * coin.Value;
+                response.Add(new CoinResponse(coin.Id, coin.Value, currentAmount));
             }
             if (change == 0)
             {

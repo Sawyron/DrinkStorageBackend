@@ -11,7 +11,7 @@ public static class ApplicationExtensions
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-        services.AddScoped<ProductSerivce>();
+        services.AddScoped<ProductService>();
         services.AddScoped<BrandService>();
         services.AddScoped<CoinService>();
         services.AddScoped<OrderService>();

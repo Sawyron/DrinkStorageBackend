@@ -9,9 +9,9 @@ namespace DrinkStorage.WebApi.Products;
 [ApiController]
 public class ProductController : ControllerBase
 {
-    private readonly ProductSerivce _productSerivce;
+    private readonly ProductService _productSerivce;
 
-    public ProductController(ProductSerivce productSerivce)
+    public ProductController(ProductService productSerivce)
     {
         _productSerivce = productSerivce;
     }

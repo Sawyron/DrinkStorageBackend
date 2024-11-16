@@ -2,4 +2,4 @@
 
 public record CreateOrderCommand(
     List<OrderItemCreateCommand> OrderItems,
-    List<CoinCommand> Coins);
+    List<CreateCoinCommand> Coins);
