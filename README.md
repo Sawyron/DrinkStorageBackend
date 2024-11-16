@@ -34,8 +34,8 @@ Imports products from xlsx file
   - type:
 ```json
 {
-    orderItems: orderItem[],
-    coins: coin[]
+    "orderItems": ["orderItem"],
+    "coins": ["coin"]
 }
 ```
 
@@ -43,28 +43,28 @@ Imports products from xlsx file
 - product
 ```json
 {
-    products: {
-        id: uuid,
-        name: string,
-        price: int,
-        quantity: int,
-        imageUlr: string,
-        BrandId: uuid
+    "products": {
+        "id": "uuid",
+        "name": "string",
+        "price": "int",
+        "quantity": "int",
+        "imageUlr": "string",
+        "BrandId": "uuid"
     },
-    maxPrice: int
+    "maxPrice": "int"
 }
 ```
 - orderItem
 ```json
 {
-    productId: uuid,
-    quantity: int
+    "productId": "uuid",
+    "quantity": "int"
 }
 ```
 - coin
 ```json
 {
-    id: uuid,
-    quantity: int
+    "id": "uuid",
+    "quantity": "int"
 }
 ```
