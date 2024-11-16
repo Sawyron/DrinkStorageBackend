@@ -30,6 +30,7 @@ Imports products from xlsx file
 ## Order
 
 ### / POST
+Places the order for specified items and return change for given coins
 - Request body
   - type:
 ```json
@@ -37,6 +38,16 @@ Imports products from xlsx file
     "orderItems": ["orderItem"],
     "coins": ["coin"]
 }
+```
+- Response
+```json
+[
+    {
+        "id": "uuid",
+        "value": "int",
+        "quantity": "int"   
+    }
+]
 ```
 
 # Data types
