@@ -1,7 +1,7 @@
 ﻿namespace DrinkStorage.Application.Orders.Exceptions;
-public class ProductQuantityIsUnsufficientExcettion : Exception
+public class ProductQuantityIsInsufficientException : Exception
 {
-    public ProductQuantityIsUnsufficientExcettion(Guid id, int quantity)
+    public ProductQuantityIsInsufficientException(Guid id, int quantity)
         : base($"Can't sell {quantity} of product with id {id}")
     {
 

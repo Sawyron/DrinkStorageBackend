@@ -9,17 +9,17 @@ namespace DrinkStorage.WebApi.Products;
 [ApiController]
 public class ProductController : ControllerBase
 {
-    private readonly ProductService _productSerivce;
+    private readonly ProductService _productService;
 
-    public ProductController(ProductService productSerivce)
+    public ProductController(ProductService productService)
     {
-        _productSerivce = productSerivce;
+        _productService = productService;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken token)
     {
-        var info = await _productSerivce.GetProductInfoAsync(token);
+        var info = await _productService.GetProductInfoAsync(token);
         var products = info.Products.Select(MapProduct)
             .ToList();
         return Ok(new ProductInfoResponse(products, info.MaxPrice));
@@ -28,7 +28,7 @@ public class ProductController : ControllerBase
     [HttpGet("by-ids")]
     public async Task<IActionResult> GetAllByIds([FromQuery] List<Guid> ids, CancellationToken token)
     {
-        var products = await _productSerivce.GetByIdsAsync(ids, token);
+        var products = await _productService.GetByIdsAsync(ids, token);
         return Ok(products.Select(MapProduct).ToList());
     }
 
@@ -38,7 +38,7 @@ public class ProductController : ControllerBase
         [FromQuery] Guid? brandId,
         CancellationToken token)
     {
-        var products = await _productSerivce.FindByBrandAndPrice(brandId, maxPrice, token);
+        var products = await _productService.FindByBrandAndPrice(brandId, maxPrice, token);
         return Ok(products.Select(MapProduct).ToList());
     }
 
@@ -47,7 +47,7 @@ public class ProductController : ControllerBase
     {
         try
         {
-            await _productSerivce.ImportFromXlsx(file.OpenReadStream(), token);
+            await _productService.ImportFromXlsx(file.OpenReadStream(), token);
             return Ok();
         }
         catch (Exception ex)

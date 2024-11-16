@@ -51,7 +51,7 @@ public class OrderService
                 }
                 if (value.Quantity < item.Quantity)
                 {
-                    throw new ProductQuantityIsUnsufficientExcettion(item.ProductId, item.Quantity);
+                    throw new ProductQuantityIsInsufficientException(item.ProductId, item.Quantity);
                 }
             }
             int price = command.OrderItems
