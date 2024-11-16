@@ -1,23 +1,26 @@
-﻿using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Spreadsheet;
-using DrinkStorage.Application.Products.Responses;
+﻿using DrinkStorage.Application.Products.Responses;
 using DrinkStorage.Persistence;
 using DrinkStorage.Persistence.Products;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics.CodeAnalysis;
 
 namespace DrinkStorage.Application.Products;
 
-public class ProductSerivce
+public class ProductService
 {
-    private readonly ILogger<ProductSerivce> _logger;
+    private readonly ILogger<ProductService> _logger;
     private readonly ProductRepository _repository;
+    private readonly ProductXlsxService _xlsxService;
     private IUnitOfWork _unitOfWork;
 
-    public ProductSerivce(ILogger<ProductSerivce> logger, ProductRepository repository, IUnitOfWork unitOfWork)
+    public ProductService(
+        ILogger<ProductService> logger,
+        ProductRepository repository,
+        ProductXlsxService xlsxService,
+        IUnitOfWork unitOfWork)
     {
         _logger = logger;
         _repository = repository;
+        _xlsxService = xlsxService;
         _unitOfWork = unitOfWork;
     }
 
@@ -37,35 +40,24 @@ public class ProductSerivce
 
     public async Task ImportFromXlsx(Stream steam, CancellationToken token)
     {
-        using SpreadsheetDocument spreadSheetDocument = SpreadsheetDocument.Open(steam, false);
-        WorkbookPart workbookPart = spreadSheetDocument.WorkbookPart ?? throw new InvalidOperationException();
-        SharedStringTablePart sstpart = workbookPart.GetPartsOfType<SharedStringTablePart>().First();
-        SharedStringTable sst = sstpart.SharedStringTable;
-        WorksheetPart worksheetPart = workbookPart.WorksheetParts.First();
-        SheetData sheetData = worksheetPart.Worksheet.Elements<SheetData>().First();
         _logger.LogInformation("Import begin");
+        var products = _xlsxService.ParseFromXlsx(steam);
         const int batchSize = 1000;
-        var products = new List<Product>(batchSize);
+        var productBatch = new List<Product>(batchSize);
         int totalImported = 0;
-        foreach (Row row in sheetData.Elements<Row>().Skip(1))
+        foreach (Product product in products)
         {
-            if (products.Count == batchSize)
+            if (productBatch.Count == batchSize)
             {
-                int saved = await SaveProducts(products, token);
+                int saved = await SaveProducts(productBatch, token);
                 totalImported += saved;
+                productBatch.Clear();
             }
-            if (TryParseProduct(row, sst, out var product))
-            {
-                products.Add(product);
-            }
-            else
-            {
-                _logger.LogError("Can't parse product from row {}", row);
-            }
+            productBatch.Add(product);
         }
-        if (products.Count > 0)
+        if (productBatch.Count > 0)
         {
-            await SaveProducts(products, token);
+            await SaveProducts(productBatch, token);
         }
         _logger.LogInformation("Import completed, products saved: {}", totalImported);
     }
@@ -84,54 +76,5 @@ public class ProductSerivce
             _logger.LogError("Import error: {}", ex);
             throw;
         }
-    }
-
-    private static string GetCellText(Cell cell, SharedStringTable sst)
-    {
-        if (cell.CellValue is null)
-            return string.Empty;
-
-        if ((cell.DataType is not null) &&
-            (cell.DataType == CellValues.SharedString))
-        {
-            int ssid = int.Parse(cell.CellValue.Text);
-            return sst.ChildElements[ssid].InnerText;
-        }
-
-        return cell.CellValue.Text;
-    }
-
-    private static bool TryParseProduct(Row row, SharedStringTable sst, [NotNullWhen(true)] out Product? product)
-    {
-        List<Cell> cells = row.Elements<Cell>().ToList();
-        if (cells.Count != 5)
-        {
-            product = null;
-            return false;
-        }
-        if (!Guid.TryParse(GetCellText(cells[4], sst), out Guid brandId))
-        {
-            product = null;
-            return false;
-        }
-        if (!int.TryParse(GetCellText(cells[1], sst), out int price))
-        {
-            product = null;
-            return false;
-        }
-        if (!int.TryParse(GetCellText(cells[2], sst), out int quantity))
-        {
-            product = null;
-            return false;
-        }
-        product = new Product
-        {
-            Name = GetCellText(cells[0], sst),
-            Price = price,
-            Quantity = quantity,
-            BrandId = brandId,
-            ImageUrl = GetCellText(cells[3], sst)
-        };
-        return true;
     }
 }
