@@ -43,13 +43,13 @@ Imports products from xlsx file
 - product
 ```json
 {
-    products: {
+    "products": {
         "id": "uuid",
         "name": "string",
         "price": "int",
         "quantity": "int",
         "imageUlr": "string",
-        "BrandId: "uuid"
+        "BrandId": "uuid"
     },
     "maxPrice": "int"
 }
